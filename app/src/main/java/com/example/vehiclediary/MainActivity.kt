@@ -40,10 +40,23 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+data class Car(
+    val brand: String,
+    val model: String,
+    val year: Int
+)
+
 @Composable
 fun VehicleDiaryScreen(
     modifier: Modifier = Modifier
 ) {
+    val hasCar: Boolean = true
+
+    val car = Car(
+        brand = "Toyota",
+        model = "Camry",
+        year = 2018
+    )
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -63,10 +76,17 @@ fun VehicleDiaryScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        Text(
-            text = "Автомобиль пока не добавлен",
-            modifier = Modifier.padding(top = 32.dp)
-        )
+        if (hasCar) {
+            Text(
+                text = "${car.brand} ${car.model}, ${car.year}",
+                modifier = Modifier.padding(top = 32.dp)
+            )
+        } else {
+            Text(
+                text = "Автомобиль пока не добавлен",
+                modifier = Modifier.padding(top = 32.dp)
+            )
+        }
 
         Button(
             onClick = {
