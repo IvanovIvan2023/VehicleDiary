@@ -41,22 +41,22 @@ class MainActivity : ComponentActivity() {
 }
 
 data class Car(
-    val brand: String,
-    val model: String,
-    val year: Int
+    val brand: String, val model: String, val year: Int, val plateNumber: String, var mileage: Int
 )
 
 @Composable
 fun VehicleDiaryScreen(
     modifier: Modifier = Modifier
 ) {
-    val hasCar: Boolean = true
 
-    val car = Car(
+    val car: Car? = Car(
         brand = "Toyota",
         model = "Camry",
-        year = 2018
+        year = 2018,
+        plateNumber = "O831KY29",
+        mileage = 126000
     )
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -66,8 +66,7 @@ fun VehicleDiaryScreen(
     ) {
 
         Text(
-            text = "VehicleDiary",
-            style = MaterialTheme.typography.headlineLarge
+            text = "VehicleDiary", style = MaterialTheme.typography.headlineLarge
         )
 
         Text(
@@ -76,15 +75,20 @@ fun VehicleDiaryScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        if (hasCar) {
+        if (car != null) {
             Text(
                 text = "${car.brand} ${car.model}, ${car.year}",
                 modifier = Modifier.padding(top = 32.dp)
             )
+            Text(
+                text = car.plateNumber
+            )
+            Text(
+                text = "Пробег: ${car.mileage} км"
+            )
         } else {
             Text(
-                text = "Автомобиль пока не добавлен",
-                modifier = Modifier.padding(top = 32.dp)
+                text = "Автомобиль пока не добавлен", modifier = Modifier.padding(top = 32.dp)
             )
         }
 
@@ -92,8 +96,7 @@ fun VehicleDiaryScreen(
             onClick = {
                 // Позже здесь будет переход
                 // на экран добавления автомобиля.
-            },
-            modifier = Modifier.padding(top = 16.dp)
+            }, modifier = Modifier.padding(top = 16.dp)
         ) {
             Text("Добавить автомобиль")
         }
