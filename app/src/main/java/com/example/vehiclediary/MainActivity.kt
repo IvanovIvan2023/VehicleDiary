@@ -22,6 +22,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,6 +51,25 @@ class MainActivity : ComponentActivity() {
 fun VehicleDiaryScreen(
     modifier: Modifier = Modifier
 ) {
+
+    var brandText by remember {
+        mutableStateOf("")
+    }
+    var modelText by remember {
+        mutableStateOf("")
+    }
+    var yearText by remember {
+        mutableStateOf("")
+    }
+    var plateNumberText by remember {
+        mutableStateOf("")
+    }
+    var mileageText by remember {
+        mutableStateOf("")
+    }
+    var errorText by remember {
+        mutableStateOf("")
+    }
 
     var car by remember {
         mutableStateOf<Car?>(
@@ -95,6 +117,43 @@ fun VehicleDiaryScreen(
             Text(
                 text = "Автомобиль пока не добавлен", modifier = Modifier.padding(top = 32.dp)
             )
+            VehicleTextField(
+                value = brandText,
+                onValueChange = {
+                    brandText = it
+                },
+                label = "Марка автомобиля"
+            )
+            VehicleTextField(
+                value = modelText,
+                onValueChange = {
+                    modelText = it
+                },
+                label = "Модель автомобиля"
+            )
+            VehicleTextField(
+                value = yearText,
+                onValueChange = {
+                    yearText = it
+                },
+                label = "Год выпуска",
+                keyboardType = KeyboardType.Number
+            )
+            VehicleTextField(
+                value = plateNumberText,
+                onValueChange = {
+                    plateNumberText = it
+                },
+                label = "Госномер"
+            )
+            VehicleTextField(
+                value = mileageText,
+                onValueChange = {
+                    mileageText = it
+                },
+                label = "Пробег",
+                keyboardType = KeyboardType.Number
+            )
         }
 
         Button(
@@ -102,15 +161,25 @@ fun VehicleDiaryScreen(
                 if (currentCar != null) {
                     car = null
                 } else {
-                    car = Car(
-                        brand = "Honda",
-                        model = "FR-V",
-                        year = 2006,
-                        mileage = 310000,
-                        plateNumber = "O831KY29"
-                    )
+                    val year = yearText.toIntOrNull()
+                    val mileage = mileageText.toIntOrNull()
+
+                    if (year != null && mileage != null) {
+                        errorText = ""
+
+                        car = Car(
+                            brand = brandText,
+                            model = modelText,
+                            year = year,
+                            mileage = mileage,
+                            plateNumber = plateNumberText
+                        )
+                    } else {
+                        errorText = "Введите корректный год и пробег"
+                    }
                 }
-            }, modifier = Modifier.padding(top = 16.dp)
+            },
+            modifier = Modifier.padding(top = 16.dp)
         ) {
             Text(
                 if (currentCar != null) {
@@ -120,7 +189,34 @@ fun VehicleDiaryScreen(
                 }
             )
         }
+
+        if (errorText.isNotEmpty()) {
+            Text(
+                text = errorText,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
     }
+}
+
+@Composable
+fun VehicleTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = {
+            Text(label)
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType
+        ),
+        modifier = Modifier.padding(top = 16.dp)
+    )
 }
 
 @Preview(showBackground = true)
