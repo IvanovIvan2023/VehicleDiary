@@ -18,6 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.vehiclediary.ui.theme.VehicleDiaryTheme
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -45,13 +47,17 @@ fun VehicleDiaryScreen(
     modifier: Modifier = Modifier
 ) {
 
-    val car: Car? = Car(
-        brand = "Toyota",
-        model = "Camry",
-        year = 2018,
-        plateNumber = "O831KY29",
-        mileage = 126000
-    )
+    val car = remember {
+        mutableStateOf<Car?>(
+            Car(
+                brand = "Toyota",
+                model = "Camry",
+                year = 2018,
+                plateNumber = "O831KY29",
+                mileage = 126000
+            )
+        )
+    }
 
     Column(
         modifier = modifier
@@ -71,16 +77,17 @@ fun VehicleDiaryScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        if (car != null) {
+        val currentCar = car.value
+        if (currentCar != null) {
             Text(
-                text = "${car.brand} ${car.model}, ${car.year}",
+                text = "${currentCar.brand} ${currentCar.model}, ${currentCar.year}",
                 modifier = Modifier.padding(top = 32.dp)
             )
             Text(
-                text = car.plateNumber
+                text = currentCar.plateNumber
             )
             Text(
-                text = "Пробег: ${car.mileage} км"
+                text = "Пробег: ${currentCar.mileage} км"
             )
         } else {
             Text(
@@ -90,11 +97,26 @@ fun VehicleDiaryScreen(
 
         Button(
             onClick = {
-                // Позже здесь будет переход
-                // на экран добавления автомобиля.
+                if (car.value != null) {
+                    car.value = null
+                } else {
+                    car.value = Car(
+                        brand = "Honda",
+                        model = "FR-V",
+                        year = 2006,
+                        mileage = 310000,
+                        plateNumber = "O831KY29"
+                    )
+                }
             }, modifier = Modifier.padding(top = 16.dp)
         ) {
-            Text("Добавить автомобиль")
+            Text(
+                if (currentCar != null) {
+                    "Удалить автомобиль"
+                } else {
+                    "Добавить автомобиль"
+                }
+            )
         }
     }
 }
