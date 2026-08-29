@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import com.example.vehiclediary.ui.theme.VehicleDiaryTheme
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +49,7 @@ fun VehicleDiaryScreen(
     modifier: Modifier = Modifier
 ) {
 
-    val car = remember {
+    var car by remember {
         mutableStateOf<Car?>(
             Car(
                 brand = "Toyota",
@@ -77,7 +79,7 @@ fun VehicleDiaryScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        val currentCar = car.value
+        val currentCar = car
         if (currentCar != null) {
             Text(
                 text = "${currentCar.brand} ${currentCar.model}, ${currentCar.year}",
@@ -97,10 +99,10 @@ fun VehicleDiaryScreen(
 
         Button(
             onClick = {
-                if (car.value != null) {
-                    car.value = null
+                if (currentCar != null) {
+                    car = null
                 } else {
-                    car.value = Car(
+                    car = Car(
                         brand = "Honda",
                         model = "FR-V",
                         year = 2006,
