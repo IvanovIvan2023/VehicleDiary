@@ -40,10 +40,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class Car(
-    val brand: String, val model: String, val year: Int, val plateNumber: String, var mileage: Int
-)
-
 @Composable
 fun VehicleDiaryScreen(
     modifier: Modifier = Modifier
