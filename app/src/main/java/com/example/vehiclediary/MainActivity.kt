@@ -161,6 +161,7 @@ fun VehicleDiaryScreen(
                 if (currentCar != null) {
                     car = null
                 } else {
+                    val currentYear = java.time.Year.now().value
                     val year = yearText.toIntOrNull()
                     val mileage = mileageText.toIntOrNull()
                     val errors = mutableListOf<String>()
@@ -174,6 +175,8 @@ fun VehicleDiaryScreen(
                     }
                     if (year == null) {
                         errors.add("Введите корректный год")
+                    } else if (year !in 1886..currentYear) {
+                        errors.add("Укажите реальный год выпуска")
                     }
 
                     if (plateNumberText.isBlank()) {
@@ -182,17 +185,19 @@ fun VehicleDiaryScreen(
 
                     if (mileage == null) {
                         errors.add("Введите корректный пробег")
+                    } else if (mileage < 0) {
+                        errors.add("Пробег не может быть отрицательным")
                     }
 
                     errorText = errors.joinToString("\n")
 
                     if (errors.isEmpty() && year != null && mileage != null) {
                         car = Car(
-                            brand = brandText,
-                            model = modelText,
+                            brand = brandText.trim(),
+                            model = modelText.trim(),
                             year = year,
                             mileage = mileage,
-                            plateNumber = plateNumberText
+                            plateNumber = plateNumberText.trim()
                         )
                     }
 
