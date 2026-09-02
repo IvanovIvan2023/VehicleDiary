@@ -25,12 +25,31 @@ import androidx.compose.runtime.setValue
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.room.Room
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
+import androidx.lifecycle.ViewModelProvider
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+
+        val database = Room.databaseBuilder(
+            applicationContext,
+            VehicleDatabase::class.java,
+            "vehicle_database"
+        ).build()
+
+        val carDao = database.carDao()
+        val repository = CarRepository(carDao)
+        val factory = VehicleViewModelFactory(repository)
+
+        val viewModel = ViewModelProvider(
+            this,
+            factory
+        )[VehicleViewModel::class.java]
 
         setContent {
             VehicleDiaryTheme {
@@ -39,6 +58,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
 
                     VehicleDiaryScreen(
+                        viewModel = viewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -49,6 +69,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun VehicleDiaryScreen(
+    viewModel: VehicleViewModel,
     modifier: Modifier = Modifier
 ) {
 
@@ -70,18 +91,8 @@ fun VehicleDiaryScreen(
     var errorText by remember {
         mutableStateOf("")
     }
+    val scope = rememberCoroutineScope()
 
-    var car by remember {
-        mutableStateOf<Car?>(
-            Car(
-                brand = "Toyota",
-                model = "Camry",
-                year = 2018,
-                plateNumber = "O831KY29",
-                mileage = 126000
-            )
-        )
-    }
 
     Column(
         modifier = modifier
@@ -101,7 +112,7 @@ fun VehicleDiaryScreen(
             modifier = Modifier.padding(top = 8.dp)
         )
 
-        val currentCar = car
+        val currentCar = viewModel.car
         if (currentCar != null) {
             Text(
                 text = "${currentCar.brand} ${currentCar.model}, ${currentCar.year}",
@@ -159,7 +170,14 @@ fun VehicleDiaryScreen(
         Button(
             onClick = {
                 if (currentCar != null) {
-                    car = null
+                    viewModel.deleteCar()
+
+                    brandText = ""
+                    modelText = ""
+                    yearText = ""
+                    plateNumberText = ""
+                    mileageText = ""
+                    errorText = ""
                 } else {
                     val currentYear = java.time.Year.now().value
                     val year = yearText.toIntOrNull()
@@ -192,12 +210,14 @@ fun VehicleDiaryScreen(
                     errorText = errors.joinToString("\n")
 
                     if (errors.isEmpty() && year != null && mileage != null) {
-                        car = Car(
-                            brand = brandText.trim(),
-                            model = modelText.trim(),
-                            year = year,
-                            mileage = mileage,
-                            plateNumber = plateNumberText.trim()
+                        viewModel.saveCar(
+                            CarEntity(
+                                brand = brandText.trim(),
+                                model = modelText.trim(),
+                                year = year,
+                                mileage = mileage,
+                                plateNumber = plateNumberText.trim()
+                            )
                         )
                     }
 
@@ -244,10 +264,10 @@ fun VehicleTextField(
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun VehicleDiaryPreview() {
-    VehicleDiaryTheme {
-        VehicleDiaryScreen()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun VehicleDiaryPreview() {
+//    VehicleDiaryTheme {
+//        VehicleDiaryScreen()
+//    }
+//}
